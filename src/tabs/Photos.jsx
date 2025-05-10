@@ -19,18 +19,25 @@ export default function Photos() {
 
     useEffect(() => {
         setIsLoading(true);
+        setError(false);
+
 
         async function fetchArticles() {
-            if(query !== "") {
-                const result = await getPhotos(query, page);
 
-                setImages(prevImages => [...prevImages, ...result.photos]);
+            try {
+                if(query !== "") {
+                    const result = await getPhotos(query, page);
+                    setImages(prevImages => [...prevImages, ...result.photos]);
+                }
+            } catch (error) {
+				console.log(error);
+
+                setError(true);
+            } finally {
+                setIsLoading(false);
             }
-            setIsLoading(false);
         }
         fetchArticles();
-
-
 
     }, [query, page]);
 
@@ -56,9 +63,11 @@ export default function Photos() {
         <PhotosGallery imagesProp={images}/>
         {images.length !== 0 &&
         <Button children={'Load More'} onClick={loadMore} disabled={false}   />
-
-
         }
+
+        {error && (
+        <p>Whoops, something went wrong! Please try reloading this page!</p>
+      )}
         {isLoading && <Loader/>}
       </>
     );
